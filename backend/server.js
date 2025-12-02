@@ -7,6 +7,7 @@ import cors from "cors";
 import assignmentRoutes from "./routes/assignments.js";
 import queryRoutes from "./routes/query.js";
 
+
 const app = express();
 app.use(cors());
 app.use(express.json()); // <-- FIXED
