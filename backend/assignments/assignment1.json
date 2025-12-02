@@ -1,0 +1,18 @@
+{
+  "id": 1,
+  "title": "Select all customers older than 25",
+  "question": "Write an SQL query to fetch all customers with age > 25.",
+  "sampleData": {
+    "tables": [
+      {
+        "name": "customers",
+        "columns": ["id INTEGER", "name TEXT", "age INTEGER"],
+        "rows": [
+          [1, "Rahul", 22],
+          [2, "Priya", 28],
+          [3, "Amit", 35]
+        ]
+      }
+    ]
+  }
+}
