@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
-
+import path from "path";
 import express from "express";
 import cors from "cors";
 
@@ -28,6 +28,12 @@ app.post("/api/test-evaluate", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "AI evaluation failed" });
   }
+});
+const __dirname = path.resolve();
+app.use(express.static(path.join(__dirname, "public")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 app.listen(5000, () => {
