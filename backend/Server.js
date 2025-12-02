@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
-import path from "path";
+import { fileURLToPath } from "url";
 import express from "express";
 import cors from "cors";
 
@@ -9,7 +9,14 @@ import queryRoutes from "./routes/query.js";
 
 
 const app = express();
-app.use(cors());
+// Fix __dirname for ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.use(express.json()); // <-- FIXED
   
 
@@ -32,12 +39,14 @@ app.post("/api/test-evaluate", async (req, res) => {
     res.status(500).json({ error: "AI evaluation failed" });
   }
 });
-const __dirname = path.resolve();
-app.use(express.static(path.join(__dirname, "public")));
+const frontendBuildPath = path.join(__dirname, "../frontend/dist");
+app.use(express.static(frontendBuildPath));
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+// Fallback for SPA routing
+app.use((req, res) => {
+  res.sendFile(path.join(frontendBuildPath, "index.html"));
 });
+
 
 app.listen(5000, () => {
   console.log("CipherSQLStudio backend running on port 5000");
