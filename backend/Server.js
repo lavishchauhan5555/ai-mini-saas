@@ -1,53 +1,68 @@
 import dotenv from "dotenv";
 dotenv.config();
-import { fileURLToPath } from "url";
+
 import express from "express";
 import cors from "cors";
+import bodyParser from "body-parser";
+import path from "path";
+import { fileURLToPath } from "url";
 
+// Import your routes
 import assignmentRoutes from "./routes/assignments.js";
 import queryRoutes from "./routes/query.js";
 
+// Import AI evaluator
+import { evaluateTaskWithAI } from "./api/aiTaskEvaluator.js";
 
-const app = express();
 // Fix __dirname for ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
-app.use(express.json()); // <-- FIXED
-  
 
+const app = express();
 
-// Routes
+// --------------------
+// Middleware
+// --------------------
+app.use(cors()); // Enable CORS for all origins
+app.use(bodyParser.json());
+
+// --------------------
+// API Routes
+// --------------------
 app.use("/assignments", assignmentRoutes);
 app.use("/query", queryRoutes);
 
 // Test route for AI evaluation
-import { evaluateTaskWithAI } from "./api/aiTaskEvaluator.js";
-
 app.post("/api/test-evaluate", async (req, res) => {
-  console.log("abc"); // <-- NOW THIS WILL PRINT
-
+  console.log("Received AI evaluation request");
   const { description, githubLink } = req.body;
+
   try {
     const aiData = await evaluateTaskWithAI(description, githubLink);
     res.json(aiData);
   } catch (err) {
+    console.error("AI evaluation error:", err);
     res.status(500).json({ error: "AI evaluation failed" });
   }
 });
+
+// --------------------
+// Serve Frontend
+// --------------------
 const frontendBuildPath = path.join(__dirname, "../frontend/dist");
+
+// Serve static files
 app.use(express.static(frontendBuildPath));
 
-// Fallback for SPA routing
+// SPA fallback: redirect all unknown routes to index.html
 app.use((req, res) => {
   res.sendFile(path.join(frontendBuildPath, "index.html"));
 });
 
-
-app.listen(5000, () => {
-  console.log("CipherSQLStudio backend running on port 5000");
+// --------------------
+// Start Server
+// --------------------
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`CipherSQLStudio backend running on port ${PORT}`);
 });
