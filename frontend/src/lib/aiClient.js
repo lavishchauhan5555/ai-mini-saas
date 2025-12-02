@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export async function evaluateTaskWithAI(description, githubLink) {
-  const res = await axios.post("http://localhost:5000/api/test-evaluate", {
+  const res = await axios.post("https://ai-mini-saas.onrender.com/api/test-evaluate", {
     description,
     githubLink
   });

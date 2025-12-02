@@ -6,7 +6,7 @@ import path from "path";
 // https://vite.dev/config/
 export default ({ mode }) => {
   // Load env from project root
-  const env = loadEnv(mode, process.cwd());
+  const env = loadEnv(mode, path.resolve(__dirname, ".."));
 
   return defineConfig({
     plugins: [react(),  tailwindcss(),],
