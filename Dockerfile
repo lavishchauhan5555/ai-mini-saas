@@ -1,26 +1,27 @@
-# Stage 1: Build frontend
-FROM node:20-alpine AS frontend-build
+# -----------------------
+# Build Frontend
+# -----------------------
+FROM node:20 AS frontend-build
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm install
-COPY frontend/ ./
+COPY frontend .
 RUN npm run build
 
-# Stage 2: Setup backend
-FROM node:20-alpine
-WORKDIR /app/backend
+# -----------------------
+# Build Backend + Full App
+# -----------------------
+FROM node:20 AS backend
+WORKDIR /app
+
+# Copy backend
 COPY backend/package*.json ./
-RUN npm install --production
-COPY backend/ ./
+RUN npm install
+COPY backend .
 
-# Copy frontend build to backend
-COPY --from=frontend-build /app/frontend/dist ./public
+# Copy frontend build output into backend/public
+RUN mkdir -p /app/public
+COPY --from=frontend-build /app/frontend/dist /app/public
 
-# Set environment variable for Node
-ENV NODE_ENV=production
-
-# Expose port
 EXPOSE 5000
-
-# Start backend
 CMD ["node", "Server.js"]
